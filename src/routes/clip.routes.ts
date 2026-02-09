@@ -50,25 +50,7 @@ clipRoutes.post(
   })
 );
 
-// Get clip by ID
-clipRoutes.get(
-  '/:clipId',
-  catchAsync(async (req: Request, res: Response) => {
-    const { clipId } = req.params;
-    const clip = await clipService.getClipById(clipId);
-
-    if (!clip) {
-      throw new AppError('Clip not found', 404);
-    }
-
-    res.json({
-      status: 'success',
-      data: clip,
-    });
-  })
-);
-
-// Get clips for video
+// Get clips for video (MUST be before /:clipId)
 clipRoutes.get(
   '/video/:videoId',
   catchAsync(async (req: Request, res: Response) => {
@@ -88,7 +70,7 @@ clipRoutes.get(
   })
 );
 
-// Get clips for user
+// Get clips for user (MUST be before /:clipId)
 clipRoutes.get(
   '/user/:userId',
   catchAsync(async (req: Request, res: Response) => {
@@ -104,6 +86,24 @@ clipRoutes.get(
     res.json({
       status: 'success',
       data: clips,
+    });
+  })
+);
+
+// Get clip by ID (MUST be after specific routes)
+clipRoutes.get(
+  '/:clipId',
+  catchAsync(async (req: Request, res: Response) => {
+    const { clipId } = req.params;
+    const clip = await clipService.getClipById(clipId);
+
+    if (!clip) {
+      throw new AppError('Clip not found', 404);
+    }
+
+    res.json({
+      status: 'success',
+      data: clip,
     });
   })
 );

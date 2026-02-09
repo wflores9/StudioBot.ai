@@ -7,7 +7,7 @@
 
 const http = require('http');
 
-const BASE_URL = 'http://localhost:3000/api';
+const BASE_URL = 'http://localhost:3000';
 let testResults = { passed: 0, failed: 0, tests: [] };
 
 // Helper function to make HTTP requests
@@ -80,7 +80,7 @@ async function runTests() {
   console.log('📝 Authentication Tests:');
   await test('Register user', async () => {
     testUserEmail = `test_${Date.now()}@example.com`;
-    const res = await makeRequest('POST', '/auth/register', {
+    const res = await makeRequest('POST', '/api/auth/register', {
       username: `testuser_${Date.now()}`,
       email: testUserEmail,
       password: testUserPassword,
@@ -91,7 +91,7 @@ async function runTests() {
   });
 
   await test('Login user', async () => {
-    const res = await makeRequest('POST', '/auth/login', {
+    const res = await makeRequest('POST', '/api/auth/login', {
       email: testUserEmail,
       password: testUserPassword,
     });
@@ -100,7 +100,7 @@ async function runTests() {
   });
 
   await test('Get user profile', async () => {
-    const res = await makeRequest('GET', `/auth/profile/${testUserId}`);
+    const res = await makeRequest('GET', `/api/auth/profile/${testUserId}`);
     if (res.statusCode !== 200) throw new Error(`Expected 200, got ${res.statusCode}`);
     if (!res.body.data.username) throw new Error('No username in response');
   });
@@ -108,7 +108,7 @@ async function runTests() {
   // Video Tests
   console.log('\n🎬 Video Tests:');
   await test('Upload video via URL', async () => {
-    const res = await makeRequest('POST', '/videos/upload', {
+    const res = await makeRequest('POST', '/api/videos/upload', {
       user_id: testUserId,
       source_url: 'https://example.com/sample-video.mp4',
       title: 'Test Video ' + Date.now(),
@@ -120,21 +120,22 @@ async function runTests() {
   });
 
   await test('Get video details', async () => {
-    const res = await makeRequest('GET', `/videos/${testVideoId}`);
+    const res = await makeRequest('GET', `/api/videos/${testVideoId}`);
     if (res.statusCode !== 200) throw new Error(`Expected 200, got ${res.statusCode}`);
     if (res.body.data.id !== testVideoId) throw new Error('Wrong video returned');
   });
 
   await test('Get user videos list', async () => {
-    const res = await makeRequest('GET', `/videos/user/${testUserId}`);
+    const res = await makeRequest('GET', `/api/videos/user/${testUserId}`);
     if (res.statusCode !== 200) throw new Error(`Expected 200, got ${res.statusCode}`);
-    if (!Array.isArray(res.body.data)) throw new Error('data is not an array');
+    const videos = res.body.data.data || res.body.data;
+    if (!Array.isArray(videos)) throw new Error('videos is not an array');
   });
 
   // Clip Tests
   console.log('\n✂️  Clip Tests:');
   await test('Create clip', async () => {
-    const res = await makeRequest('POST', '/clips/create', {
+    const res = await makeRequest('POST', '/api/clips/create', {
       video_id: testVideoId,
       user_id: testUserId,
       title: 'Test Clip',
@@ -148,19 +149,20 @@ async function runTests() {
   });
 
   await test('Get clip details', async () => {
-    const res = await makeRequest('GET', `/clips/${testClipId}`);
+    const res = await makeRequest('GET', `/api/clips/${testClipId}`);
     if (res.statusCode !== 200) throw new Error(`Expected 200, got ${res.statusCode}`);
     if (res.body.data.id !== testClipId) throw new Error('Wrong clip returned');
   });
 
   await test('Get video clips', async () => {
-    const res = await makeRequest('GET', `/clips/video/${testVideoId}`);
+    const res = await makeRequest('GET', `/api/clips/video/${testVideoId}`);
     if (res.statusCode !== 200) throw new Error(`Expected 200, got ${res.statusCode}`);
-    if (!Array.isArray(res.body.data)) throw new Error('data is not an array');
+    const clips = res.body.data.data || res.body.data;
+    if (!Array.isArray(clips)) throw new Error('clips is not an array');
   });
 
   await test('Approve clip', async () => {
-    const res = await makeRequest('PATCH', `/clips/${testClipId}/approve`, {
+    const res = await makeRequest('PATCH', `/api/clips/${testClipId}/approve`, {
       approved: true,
       approval_notes: 'Looks great!',
     });
@@ -171,7 +173,7 @@ async function runTests() {
   // Short Tests
   console.log('\n📱 Shorts Tests:');
   await test('Create short from clip', async () => {
-    const res = await makeRequest('POST', '/shorts/create', {
+    const res = await makeRequest('POST', '/api/shorts/create', {
       clip_id: testClipId,
       user_id: testUserId,
       title: 'Test Short',
@@ -184,7 +186,7 @@ async function runTests() {
   // Thumbnail Tests
   console.log('\n🖼️  Thumbnail Tests:');
   await test('Generate thumbnail', async () => {
-    const res = await makeRequest('POST', '/thumbnails/generate', {
+    const res = await makeRequest('POST', '/api/thumbnails/generate', {
       source_id: testVideoId,
       source_type: 'video',
       timestamp: 15,
@@ -196,7 +198,7 @@ async function runTests() {
   // Platform Tests
   console.log('\n🌐 Platform Tests:');
   await test('Connect platform', async () => {
-    const res = await makeRequest('POST', '/platforms/youtube/connect', {
+    const res = await makeRequest('POST', '/api/platforms/youtube/connect', {
       user_id: testUserId,
       credentials: {
         access_token: 'test_token_12345',
@@ -209,7 +211,7 @@ async function runTests() {
   });
 
   await test('Get user platforms', async () => {
-    const res = await makeRequest('GET', `/platforms/user/${testUserId}`);
+    const res = await makeRequest('GET', `/api/platforms/user/${testUserId}`);
     if (res.statusCode !== 200) throw new Error(`Expected 200, got ${res.statusCode}`);
     if (!Array.isArray(res.body.data)) throw new Error('Platforms is not an array');
   });

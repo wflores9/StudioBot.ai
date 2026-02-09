@@ -102,7 +102,27 @@ videoRoutes.post(
   })
 );
 
-// Get video by ID
+// Get user's videos (MUST be before /:videoId to avoid route conflict)
+videoRoutes.get(
+  '/user/:userId',
+  catchAsync(async (req: Request, res: Response) => {
+    const { userId } = req.params;
+    const { page = 1, limit = 20 } = req.query;
+
+    const videos = await videoService.getUserVideos(
+      userId,
+      Number(page),
+      Number(limit)
+    );
+
+    res.json({
+      status: 'success',
+      data: videos,
+    });
+  })
+);
+
+// Get video by ID (MUST be after specific routes like /user/:userId)
 videoRoutes.get(
   '/:videoId',
   catchAsync(async (req: Request, res: Response) => {
@@ -120,22 +140,20 @@ videoRoutes.get(
   })
 );
 
-// Get user's videos
+// Get analysis for video
 videoRoutes.get(
-  '/user/:userId',
+  '/:videoId/analysis',
   catchAsync(async (req: Request, res: Response) => {
-    const { userId } = req.params;
-    const { page = 1, limit = 20 } = req.query;
+    const { videoId } = req.params;
+    const analysis = await videoService.getVideoAnalysis(videoId);
 
-    const videos = await videoService.getUserVideos(
-      userId,
-      Number(page),
-      Number(limit)
-    );
+    if (!analysis) {
+      throw new AppError('Analysis not found or not ready', 404);
+    }
 
     res.json({
       status: 'success',
-      data: videos,
+      data: analysis,
     });
   })
 );
