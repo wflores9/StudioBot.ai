@@ -1,0 +1,96 @@
+{
+  "name": "studiobot-desktop",
+  "version": "1.0.0",
+  "description": "StudioBot.ai Desktop Application",
+  "main": "electron/main.js",
+  "homepage": "./",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm start\" \"wait-on http://localhost:3000 && electron .\"",
+    "dev:all": "npm run dev:wait",
+    "react-start": "react-scripts start",
+    "start": "react-scripts start",
+    "dev:wait": "node scripts/run-electron.js",
+    "build": "react-scripts build",
+    "electron-dev": "electron . --dev",
+    "electron-build": "npm run build && electron-builder",
+    "electron-dist": "npm run build && electron-builder --publish never",
+    "eject": "react-scripts eject",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "axios": "^1.6.0",
+    "zustand": "^4.4.0",
+    "tailwindcss": "^3.3.0",
+    "react-icons": "^4.12.0",
+    "recharts": "^2.10.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "@types/electron": "^1.6.0",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.2.0",
+    "react-scripts": "5.0.1",
+    "concurrently": "^8.2.0",
+    "wait-on": "^7.0.0",
+    "electron": "^27.0.0",
+    "electron-builder": "^24.6.4",
+    "autoprefixer": "^10.4.0",
+    "postcss": "^8.4.0"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "build": {
+    "appId": "com.studiobotai.app",
+    "productName": "StudioBot",
+    "files": [
+      "build/**/*",
+      "electron/**/*",
+      "node_modules/**/*"
+    ],
+    "directories": {
+      "buildResources": "public"
+    },
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    },
+    "mac": {
+      "target": [
+        "dmg",
+        "zip"
+      ],
+      "category": "public.app-category.video"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ]
+    }
+  }
+}
